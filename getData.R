@@ -41,7 +41,7 @@ home<-"https://sg-api.gobear.com/api/insurance/car?CoverageFiltrations=&"
 
 top4 <- c()
 
-for(i in nrow(carInfo)){
+for(i in nrow(lmdata)){
   for(j in maritalStatus){
     for(k in gender){
       for(l in drivingExperience){
@@ -89,6 +89,3 @@ for(i in nrow(carInfo)){
     }
   }
 }
-
-
-
