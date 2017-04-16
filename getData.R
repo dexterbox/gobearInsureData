@@ -20,6 +20,7 @@ for (i in 1:nrow(maker)){
   models <- content(te,"parsed")
   models <- do.call(rbind.data.frame, models$Models)
   models$make <- maker$Name[i]
+  models$makeID <- maker$ID[i]
   lmdata <- rbind(lmdata,models)
 }
 
@@ -27,32 +28,58 @@ save(lmdata,file="modelNum.RData")
 
 load("modelNum.RData")
 
+birth <- "1987-01-01"
+e <- "30"
+registerYear <- "2013"
+carInfo <- paste0("&make=",lmdata$makeID,"&model=",lmdata$ID)
+plans <- "Comprehensive"
 maritalStatus <- c("Married","Single")
 gender <- c("Male","Female")
 drivingExperience <- c("None","One","Two","Three","Four","Five","Six","Seven","Eight","Nine",
                        "Ten","Eleven","Twelve","Thirteen","Fourteen","FifteenAndAbove")
 noClaimValue <- c(0,10,20,30,40,50)
+occupation <- "Indoor"
+offPeak <- "false"
+
+home<-"https://www.gobear.com/sg/insurance/car/quote-online?"
 
 ## docker run -d -p 4445:4444 --name ff selenium/standalone-firefox:3.3.0
-## docker inspect ff .. IPAddress
+## docker inspect ff .. IPAddress > if using in docker
 
-url<-"https://www.gobear.com/sg/insurance/car/quote-online?birth=1987-01-01&maritalStatus=Married&gender=Male&drivingExperience=Five&noClaimValue=30&registerYear=2013&make=47abfcbb-87f4-4964-9b66-60b2716b47bd&model=4ab7b203-da15-4c7c-8178-15ab1777bcba&plans=Comprehensive&occupation=Indoor&offPeak=false"
-
-remDr <- remoteDriver(remoteServerAddr="172.17.0.3", port = 4444L, browserName="firefox")
-
+remDr <- remoteDriver(remoteServerAddr="192.168.99.100", port = 4445L, 
+                      browserName="firefox")
 remDr$open()
-remDr$navigate(url)
-tem <- remDr$getPageSource()[[1]]
-tem <- read_html(tem)
-comp <- tem %>% html_nodes("h1") %>% html_text()
-plan <- tem %>% html_nodes("h2") %>% html_text()
-price <- tem %>% html_nodes("span.value") %>% html_text()
 
-home<-"https://www.gobear.com/sg"
-remDr$navigate(url)
-tem <- remDr$getPageSource()[[1]]
-tem <- read_html(tem)
-tem %>% html_nodes("#registerYears option") %>% html_text()
-tem %>% html_nodes("#make option") %>% html_text() %>% .[grep("^[a-zA-Z]",.)]
+for(i in carInfo){
+  for(j in maritalStatus){
+    for(k in gender){
+      for(l in drivingExperience){
+        for(m in noClaimValue){
+          url <- paste0(home,"birth=",birth,"&e=",e,"&registerYear=",registerYear,
+                         i,"&plans=",plans,"&maritalStatus=",j,
+                         "&gender=",k,"&drivingExperience=",l,
+                         "&noClaimValue=",m,"&occupation=",occupation,
+                         "&offPeak=",offPeak)
+
+          remDr$navigate(url)
+          Sys.sleep(1)
+          tem <- remDr$getPageSource()[[1]]
+          tem <- read_html(tem)
+          comp <- tem %>% html_nodes("h1") %>% html_text()
+          comp
+          plan <- tem %>% html_nodes("h2") %>% html_text()
+          plan
+          price <- tem %>% html_nodes("span.value") %>% html_text()
+          price
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
 
 
