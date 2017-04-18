@@ -30,6 +30,7 @@ load("modelNum.RData")
 
 birth <- "1976-01-21"
 registerYear <- "2013"
+e <- "30"
 carInfo <- lmdata
 maritalStatus <- c("Married","Single")
 gender <- c("Male","Female")
@@ -43,7 +44,7 @@ home<-"https://sg-api.gobear.com/api/insurance/car?CoverageFiltrations=&"
 
 top4 <- c()
 
-for(i in nrow(lmdata)){
+for(i in 1:nrow(lmdata)){
   for(j in maritalStatus){
     for(k in gender){
       for(l in drivingExperience){
